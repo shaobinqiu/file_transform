@@ -1,0 +1,38 @@
+clear
+Lat=[20 0 0
+    0 20 0
+    0 0 20];
+xyzfile=import_xyz('/home/qiusb/Desktop/temp/YXB/20190118/T0.xyz')
+xyzfile.coordinates=sortrows(xyzfile.coordinates,1);
+elements=unique(xyzfile.coordinates(:,1))';
+atomaccounts=zeros(1,size(elements,2));
+for ii=1:size(elements,2)
+    for jj=1:size(xyzfile.coordinates,1)
+        if xyzfile.coordinates(jj,1)==elements(1,ii)
+            atomaccounts(1,ii)=atomaccounts(1,ii)+1;
+        end
+    end
+end
+coordinates=xyzfile.coordinates(:,2:4)/Lat;
+
+pos=coordinates+repmat( [0.5 0.5 0.5] , size(coordinates,1) , 1 )-repmat( sum(coordinates)/size(coordinates,1) , size(coordinates,1) , 1 );
+n=['./POSCAR-',num2str(ii)];
+fid=fopen(n,'w+');
+fprintf(fid,[xyzfile.filename(end-10:end-4) '\n']);
+fprintf(fid,'%g\n',1);
+fprintf(fid,'%-4.6f     %-4.6f     %-4.6f\n',Lat');
+for kk=1:size(elements,2)
+    fprintf(fid,'%s     ',char(elements(1,kk))); 
+end
+fprintf(fid, '\n');
+for kk=1:size(elements,2)
+     fprintf(fid,'%g     ',atomaccounts(1,kk)); 
+end
+fprintf(fid, '\n');
+fprintf(fid,'Direct\n');
+for vv=1:size(pos,1)
+    fprintf(fid,'%-4.6f     %-4.6f     %-4.6f      \n',pos(vv,:)');
+end
+fclose(fid);
+            
+ 
